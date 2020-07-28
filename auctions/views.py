@@ -1,8 +1,9 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
 from .models import *
 
@@ -26,6 +27,14 @@ def login_view(request):
         # Check if authentication successful
         if user is not None:
             login(request, user)
+
+            # Check if user has a watchlist
+            try:
+                watchlist = Watchlist.objects.get(user=user)
+            except:
+                watchlist = Watchlist(user=user)
+                watchlist.save()
+
             return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, "auctions/login.html", {
@@ -92,3 +101,22 @@ def savelisting(request):
                             listed_by=current_user)
             listing.save()
     return redirect('index')
+
+
+def listings(request, listing_id):
+    listing = Listing.objects.get(id=listing_id)
+    return render(request, "auctions/listing.html", {
+        "listing": listing
+    })
+
+
+@login_required
+def watchlist(request, listing_id):
+    listing = Listing.objects.get(id=listing_id)
+    user = request.user
+    if listing in user.watchlist.listings.all():
+        user.watchlist.listings.remove(listing)
+    else:
+        user.watchlist.listings.add(listing)
+
+    return redirect('listings', listing_id)

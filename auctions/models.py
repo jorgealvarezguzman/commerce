@@ -24,3 +24,8 @@ class Bid(models.Model):
 class Comment(models.Model):
     listings = models.ManyToManyField(Listing, related_name="comments")
     comment = models.CharField(max_length=512)
+
+
+class Watchlist(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="watchlist")
+    listings = models.ManyToManyField(Listing, blank=True)
