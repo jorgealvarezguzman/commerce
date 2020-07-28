@@ -18,7 +18,14 @@
             </div>
         </div>
         <div class="col">
-          Place bid
+          <h6><b>{{ bids_count }}</b> bid(s) so far.</h6>
+          <form action="{% url 'bid' listing.id %}" method="post">
+              {% csrf_token %}
+              <div class="form-group">
+                  <input class="form-control" type="number" step="0.01" value="{{ current_bid }}" name="bid" placeholder="Bid">
+              </div>
+              <button type="submit" class="btn btn-primary">Place Bid</button>
+          </form>
         </div>
     </div>
 {% endblock %}

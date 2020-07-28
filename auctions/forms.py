@@ -7,3 +7,6 @@ class NewListingForm(forms.Form):
     starting_bid = forms.CharField(label="starting_bid")
     image = forms.CharField(label="image", required=False)
     category = forms.CharField(label="category", required=False)
+
+class BidForm(forms.Form):
+    bid = forms.FloatField(label="bid")

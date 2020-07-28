@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 
 from .models import *
 
-from .forms import NewListingForm
+from .forms import NewListingForm, BidForm
 
 
 def index(request):
@@ -82,7 +82,6 @@ def createlisting(request):
 
 def savelisting(request):
     if request.method == "POST":
-
         form = NewListingForm(request.POST)
         if form.is_valid():
             title = form.cleaned_data["title"]
@@ -106,7 +105,9 @@ def savelisting(request):
 def listings(request, listing_id):
     listing = Listing.objects.get(id=listing_id)
     return render(request, "auctions/listing.html", {
-        "listing": listing
+        "listing": listing,
+        "bids_count": listing.bids.count(),
+        "current_bid": max([i.bid for i in listing.bids.all()])
     })
 
 
@@ -119,4 +120,26 @@ def watchlist(request, listing_id):
     else:
         user.watchlist.listings.add(listing)
 
+    return redirect('listings', listing_id)
+
+
+@login_required
+def bid(request, listing_id):
+    listing = Listing.objects.get(id=listing_id)
+    current_user = request.user
+    if request.method == "POST":
+        form = BidForm(request.POST)
+        if form.is_valid():
+            bid = form.cleaned_data["bid"]
+            # If The bid is as large as the starting bid,
+            # and is greater than any other bids
+            if(bid >= listing.starting_bid and
+                all(bid > i.bid for i in listing.bids.all()) ):
+                bid_object = Bid.objects.create(listing=listing,
+                                                bid=bid,
+                                                listed_by=current_user)
+            else:
+                return render(request, "auctions/error.html", {
+                    "message": "The bid was not correct. It must be greater than current bid.",
+                })
     return redirect('listings', listing_id)

@@ -17,8 +17,9 @@ class Listing(models.Model):
 
 
 class Bid(models.Model):
-    listings = models.ManyToManyField(Listing, related_name="bids")
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")
     bid = models.FloatField()
+    listed_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class Comment(models.Model):
