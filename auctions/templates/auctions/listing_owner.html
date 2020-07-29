@@ -1,0 +1,33 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Listing: {{ listing.title }}</h2>
+    <h6><a class="badge badge-secondary" href="{% url 'watchlist' listing.id %}">Watchlist</a></h6>
+    <div class="row">
+        <div class="col">
+            <div class="card" style="width: 50%;">
+                <img src="{{ listing.image }}" class="card-img" alt="">
+                <div class="card-body">
+                    <h5 class="card-title"> {{ listing.title }} </h5>
+                    <p class="card-text"> <b>Price:</b> ${{ listing.starting_bid }} </p>
+                    <p class="card-text"> {{ listing.description }} </p>
+                    <p class="card-text"><small class="text-muted">Created {{ listing.date_created }} </small></p>
+                    <p class="card-text">Listed by: {{ listing.listed_by }}</p>
+                    <p class="card-text">Category: {{ listing.category }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+          <a class="btn btn-primary" role="button" href="{% url 'closeauction' listing.id %}">Close Auction</a>
+          <br></br>
+          <h6><b>{{ bids_count }}</b> bid(s) so far.</h6>
+          <form action="{% url 'bid' listing.id %}" method="post">
+              {% csrf_token %}
+              <div class="form-group">
+                  <input class="form-control" type="number" step="0.01" value="{{ current_bid }}" name="bid" placeholder="Bid">
+              </div>
+              <button type="submit" class="btn btn-primary">Place Bid</button>
+          </form>
+        </div>
+    </div>
+{% endblock %}

@@ -11,8 +11,10 @@ from .forms import NewListingForm, BidForm
 
 
 def index(request):
+    #Check active listings
+    active_listings = [i for i in Listing.objects.all() if i.is_active == True]
     return render(request, "auctions/index.html", {
-            "listings": Listing.objects.all()
+            "listings": active_listings
     })
 
 
@@ -104,10 +106,29 @@ def savelisting(request):
 
 def listings(request, listing_id):
     listing = Listing.objects.get(id=listing_id)
+    # Get current_bid
+    current_bid = listing.starting_bid
+    if (len(listing.bids.all()) > 0):
+        current_bid = max([i.bid for i in listing.bids.all()])
+    # If the auction is closed, get winner
+    if (listing.is_active == False):
+        bid = Bid.objects.get(bid=current_bid)
+        winner = bid.listed_by
+        return render(request, "auctions/closedlisting.html",{
+            "listing": listing,
+            "winner": winner
+        })
+    # if user is the one who created the listing
+    if (listing.listed_by == request.user):
+        return render(request, "auctions/listing_owner.html", {
+            "listing": listing,
+            "bids_count": listing.bids.count(),
+            "current_bid": current_bid
+        })
     return render(request, "auctions/listing.html", {
         "listing": listing,
         "bids_count": listing.bids.count(),
-        "current_bid": max([i.bid for i in listing.bids.all()])
+        "current_bid": current_bid
     })
 
 
@@ -143,3 +164,11 @@ def bid(request, listing_id):
                     "message": "The bid was not correct. It must be greater than current bid.",
                 })
     return redirect('listings', listing_id)
+
+
+@login_required
+def closeauction(request, listing_id):
+    listing = Listing.objects.get(id=listing_id)
+    listing.is_active = False
+    listing.save()
+    return redirect('index')

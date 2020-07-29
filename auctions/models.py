@@ -14,6 +14,7 @@ class Listing(models.Model):
     image = models.CharField(max_length=2550, blank=True)
     category = models.CharField(max_length=64, blank=True)
     listed_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
 
 
 class Bid(models.Model):
