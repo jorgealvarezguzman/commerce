@@ -139,10 +139,15 @@ def listings(request, listing_id):
 def watchlist(request, listing_id):
     listing = Listing.objects.get(id=listing_id)
     user = request.user
-    if listing in user.watchlist.listings.all():
-        user.watchlist.listings.remove(listing)
-    else:
-        user.watchlist.listings.add(listing)
+    watchlist = Watchlist.objects.get(user=user)
+    try:
+        if listing in watchlist.listings.all():
+            watchlist.listings.remove(listing)
+        else:
+            watchlist.listings.add(listing)
+    except AttributeError:
+        watchlist.listings.add(listing)
+        watchlist.save()
 
     return redirect('listings', listing_id)
 
@@ -189,3 +194,12 @@ def comment(request, listing_id):
                                 comment=comment,
                                 user=current_user)
     return redirect('listings', listing_id)
+
+
+@login_required
+def seewatchlist(request):
+    watchlist = Watchlist.objects.get(user=request.user)
+    listings = watchlist.listings.all()
+    return render(request, "auctions/watchlist.html",{
+        "listings": listings
+    })
