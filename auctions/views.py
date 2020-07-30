@@ -117,7 +117,7 @@ def listings(request, listing_id):
         return render(request, "auctions/closedlisting.html",{
             "listing": listing,
             "winner": winner,
-            "comments": Comment.objects.all()
+            "comments": listing.comments.all()
         })
     # if user is the one who created the listing
     if (listing.listed_by == request.user):
@@ -125,13 +125,13 @@ def listings(request, listing_id):
             "listing": listing,
             "bids_count": listing.bids.count(),
             "current_bid": current_bid,
-            "comments": Comment.objects.all()
+            "comments": listing.comments.all()
         })
     return render(request, "auctions/listing.html", {
         "listing": listing,
         "bids_count": listing.bids.count(),
         "current_bid": current_bid,
-        "comments": Comment.objects.all()
+        "comments": listing.comments.all()
     })
 
 
