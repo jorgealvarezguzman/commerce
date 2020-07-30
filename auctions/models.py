@@ -24,8 +24,10 @@ class Bid(models.Model):
 
 
 class Comment(models.Model):
-    listings = models.ManyToManyField(Listing, related_name="comments")
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
     comment = models.CharField(max_length=512)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date_added = models.DateTimeField(auto_now_add=True)
 
 
 class Watchlist(models.Model):

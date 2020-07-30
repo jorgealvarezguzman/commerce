@@ -1,7 +1,7 @@
 from django import forms
 
 
-class NewListingForm(forms.Form):
+class ListingForm(forms.Form):
     title = forms.CharField(label="title")
     description = forms.CharField(label="description", required=False)
     starting_bid = forms.CharField(label="starting_bid")
@@ -10,3 +10,6 @@ class NewListingForm(forms.Form):
 
 class BidForm(forms.Form):
     bid = forms.FloatField(label="bid")
+
+class CommentForm(forms.Form):
+    comment = forms.CharField(label="comment")

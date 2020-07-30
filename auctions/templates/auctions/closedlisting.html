@@ -19,6 +19,17 @@
         </div>
         <div class="col">
           <h3>The auction is closed. The winner is <b>{{ winner }}</b>!</h3>
+          <br>
+          {% for comment in comments %}
+          <div class="card">
+              <div class="card-body">
+                  <h5 class="card-title">{{comment.user}}</h5>
+                  <h6 class="card-subtitle mb-2 text-muted">{{comment.date_added}}</h6>
+                  <p class="card-text">{{comment.comment}}</p>
+              </div>
+          </div>
+          <br>
+          {% endfor %}
         </div>
     </div>
 {% endblock %}

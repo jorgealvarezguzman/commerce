@@ -26,6 +26,25 @@
               </div>
               <button type="submit" class="btn btn-primary">Place Bid</button>
           </form>
+          <br>
+          <form action="{% url 'comment' listing.id %}" method="post">
+              {% csrf_token %}
+              <div class="form-group">
+                  <textarea class="form-control" rows="3" name="comment" placeholder="Add a comment"></textarea>
+                  <button type="submit" class="btn btn-success">Add Comment</button>
+              </div>
+          </form>
+          <br>
+          {% for comment in comments %}
+          <div class="card">
+              <div class="card-body">
+                  <h5 class="card-title">{{comment.user}}</h5>
+                  <h6 class="card-subtitle mb-2 text-muted">{{comment.date_added}}</h6>
+                  <p class="card-text">{{comment.comment}}</p>
+              </div>
+          </div>
+          <br>
+          {% endfor %}
         </div>
     </div>
 {% endblock %}

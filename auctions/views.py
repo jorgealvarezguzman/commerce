@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 
 from .models import *
 
-from .forms import NewListingForm, BidForm
+from .forms import ListingForm, BidForm, CommentForm
 
 
 def index(request):
@@ -84,7 +84,7 @@ def createlisting(request):
 
 def savelisting(request):
     if request.method == "POST":
-        form = NewListingForm(request.POST)
+        form = ListingForm(request.POST)
         if form.is_valid():
             title = form.cleaned_data["title"]
             description = form.cleaned_data["description"]
@@ -116,19 +116,22 @@ def listings(request, listing_id):
         winner = bid.listed_by
         return render(request, "auctions/closedlisting.html",{
             "listing": listing,
-            "winner": winner
+            "winner": winner,
+            "comments": Comment.objects.all()
         })
     # if user is the one who created the listing
     if (listing.listed_by == request.user):
         return render(request, "auctions/listing_owner.html", {
             "listing": listing,
             "bids_count": listing.bids.count(),
-            "current_bid": current_bid
+            "current_bid": current_bid,
+            "comments": Comment.objects.all()
         })
     return render(request, "auctions/listing.html", {
         "listing": listing,
         "bids_count": listing.bids.count(),
-        "current_bid": current_bid
+        "current_bid": current_bid,
+        "comments": Comment.objects.all()
     })
 
 
@@ -172,3 +175,17 @@ def closeauction(request, listing_id):
     listing.is_active = False
     listing.save()
     return redirect('index')
+
+
+@login_required
+def comment(request, listing_id):
+    listing = Listing.objects.get(id=listing_id)
+    current_user = request.user
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.cleaned_data["comment"]
+            Comment.objects.create(listing=listing,
+                                comment=comment,
+                                user=current_user)
+    return redirect('listings', listing_id)
