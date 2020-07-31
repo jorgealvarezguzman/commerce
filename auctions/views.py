@@ -98,9 +98,17 @@ def savelisting(request):
                             description=description,
                             starting_bid=starting_bid,
                             image=image,
-                            category=category,
+                            category=category.capitalize(),
                             listed_by=current_user)
             listing.save()
+
+            # Create category if name is not None and DoesNotExist
+            if category is not None:
+                try:
+                    Category.objects.get(name=category.capitalize())
+                except Category.DoesNotExist:
+                    category = Category(name=category.capitalize())
+                    category.save()
     return redirect('index')
 
 
@@ -201,5 +209,21 @@ def seewatchlist(request):
     watchlist = Watchlist.objects.get(user=request.user)
     listings = watchlist.listings.all()
     return render(request, "auctions/watchlist.html",{
+        "listings": listings
+    })
+
+
+def categories(request):
+    categories = Category.objects.all()
+    return render(request, "auctions/categories.html",{
+        "categories": categories
+    })
+
+
+def category(request, category_name):
+    listings = [listing for listing in Listing.objects.all()
+                if listing.category == category_name]
+    return render(request, "auctions/category.html",{
+        "category": category_name,
         "listings": listings
     })
